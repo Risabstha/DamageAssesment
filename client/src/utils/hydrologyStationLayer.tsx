@@ -12,55 +12,22 @@ export type StationLayerState = {
   error: boolean;
 };
 
-function stationDetails(station: HydrologyStation, stale: boolean) {
-  const content = document.createElement("div");
-  content.className = "max-w-[260px] whitespace-normal";
-  const title = document.createElement("strong");
-  title.className = "mb-1 block";
-  title.textContent = station.station_name;
-  content.append(title);
-  const fields: [string, string][] = [
-    ["River", station.river_name ?? "Not provided"],
-    [
-      "Elevation",
-      station.elevation === null ? "Not provided" : `${station.elevation} m`,
-    ],
-  ];
-  if (station.elevation === null) {
-    fields.push([
-      "Point value",
-      station.point_value?.toString() ?? "Not available",
-    ]);
-    if (station.point_observed_at)
-      fields.push(["Point time (DHM)", station.point_observed_at]);
-  }
-  fields.push(
-    ["District", station.district ?? "Not provided"],
-    ["Description", station.description ?? "Not provided"],
-    ["Last collected", new Date(station.fetched_at).toLocaleString()],
-  );
-  if (stale)
-    fields.push([
-      "Status",
-      "Latest refresh failed; showing last successful data",
-    ]);
-  for (const [label, value] of fields) {
-    const row = document.createElement("div");
-    const labelElement = document.createElement("span");
-    labelElement.className = "text-[#60777d]";
-    labelElement.textContent = `${label}: `;
-    row.append(labelElement, document.createTextNode(value));
-    content.append(row);
-  }
-  return content;
-}
+export type StationDetailsTarget = {
+  station: HydrologyStation;
+  stale: boolean;
+  tooltip: HTMLDivElement;
+  popup: HTMLDivElement;
+};
 
 export function createHydrologyStationLayer(
   map: L.Map,
   onState: (state: StationLayerState) => void,
+  onDetailsChange: (details: StationDetailsTarget[]) => void,
 ) {
   const pane = map.createPane("hydrology-stations");
   pane.style.zIndex = "460";
+  const tooltipPane = map.createPane("hydrology-station-tooltips");
+  tooltipPane.style.zIndex = "710";
   const layer = L.layerGroup().addTo(map);
   let enabled = true;
   let disposed = false;
@@ -79,24 +46,33 @@ export function createHydrologyStationLayer(
     if (serialized === lastData) return;
     lastData = serialized;
     layer.clearLayers();
+    const details: StationDetailsTarget[] = [];
     for (const station of data.stations) {
       const stale = data.failed_station_ids.includes(station.id);
+      // Leaflet owns the empty hosts; React renders their contents through portals.
+      const tooltip = document.createElement("div");
+      const popup = document.createElement("div");
+      details.push({ station, stale, tooltip, popup });
       const marker = L.circleMarker([station.latitude, station.longitude], {
         pane: "hydrology-stations",
-        radius: 7,
+        radius: 10,
         color: "#fff",
         weight: 2,
-        fillColor: "#742aa5",
+        fillColor: "blue",
         fillOpacity: 1,
       });
-      marker.bindTooltip(stationDetails(station, stale), {
+      const tooltipOptions: L.TooltipOptions = {
+        pane: "hydrology-station-tooltips",
         direction: "top",
         offset: [0, -6],
         className: "hydrology-station-tooltip",
-      });
-      marker.bindPopup(stationDetails(station, stale), {
+      };
+      marker.bindTooltip(tooltip, tooltipOptions);
+      marker.bindPopup(popup, {
         className: "hydrology-station-popup",
       });
+      marker.on("popupopen", () => marker.unbindTooltip());
+      marker.on("popupclose", () => marker.bindTooltip(tooltip, tooltipOptions));
       marker.on("add", () => {
         const element = marker.getElement();
         element?.setAttribute("tabindex", "0");
@@ -114,6 +90,7 @@ export function createHydrologyStationLayer(
       });
       marker.addTo(layer);
     }
+    onDetailsChange(details);
   }
 
   function refresh() {
@@ -161,6 +138,7 @@ export function createHydrologyStationLayer(
       controller?.abort();
       if (timer !== null) clearTimeout(timer);
       layer.remove();
+      onDetailsChange([]);
     },
   };
 }

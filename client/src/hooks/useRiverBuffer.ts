@@ -5,13 +5,13 @@ import type { RiverBuffer } from '../api/RiverStreamsApi'
 
 type Result = { key: string; streamId: number; buffer: RiverBuffer | null; error: string }
 
-export function useRiverBuffer(streamId: number | null, distance: number) {
+export function useRiverBuffer(streamId: number | null, distance: number | null) {
   const [result, setResult] = useState<Result | null>(null)
   const [attempt, setAttempt] = useState(0)
-  const key = streamId === null ? null : `${streamId}:${distance}:${attempt}`
+  const key = streamId === null || distance === null ? null : `${streamId}:${distance}:${attempt}`
 
   useEffect(() => {
-    if (streamId === null) return
+    if (streamId === null || distance === null) return
     const requestKey = `${streamId}:${distance}:${attempt}`
     const controller = new AbortController()
     const timer = setTimeout(() => {
@@ -32,7 +32,7 @@ export function useRiverBuffer(streamId: number | null, distance: number) {
   return {
     buffer: current?.buffer ?? null,
     // Keep showing the previous buffer for the same stream while a new distance loads.
-    preview: current?.buffer ?? (result?.streamId === streamId ? result?.buffer ?? null : null),
+    preview: key === null ? null : current?.buffer ?? (result?.streamId === streamId ? result?.buffer ?? null : null),
     error: current?.error ?? '',
     loading: key !== null && !current,
     retry: useCallback(() => setAttempt(value => value + 1), []),

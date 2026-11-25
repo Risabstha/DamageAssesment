@@ -93,7 +93,6 @@ export function createRiverStreamLayer(
   });
   const cache: CacheEntry[] = [];
   let enabled = false;
-  let autoEnabled = true;
   let request: AbortController | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let frame: number | null = null;
@@ -229,20 +228,10 @@ export function createRiverStreamLayer(
     }, 250);
   }
 
-  function onZoom() {
-    if (isPrinting()) return;
-    if (!enabled && autoEnabled && map.getZoom() >= MIN_ZOOM) {
-      enabled = true;
-      notify();
-    }
-  }
-
-  map.on("zoomend", onZoom);
   map.on("moveend", update);
 
   return {
     setEnabled(value: boolean) {
-      autoEnabled = false;
       enabled = value;
       update();
     },
@@ -250,7 +239,6 @@ export function createRiverStreamLayer(
     clearSelection,
     dispose() {
       disposed = true;
-      map.off("zoomend", onZoom);
       map.off("moveend", update);
       cancelWork();
       clearLayer();

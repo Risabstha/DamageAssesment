@@ -9,7 +9,6 @@ type Props = {
   name: string;
   onFile: (file: File | undefined) => void;
   onClear: () => void;
-  onNameChange: (name: string) => void;
   onAnalyze: () => void;
 };
 
@@ -20,13 +19,12 @@ export default function BoundaryControls({
   name,
   onFile,
   onClear,
-  onNameChange,
   onAnalyze,
 }: Props) {
   const fileInputId = useId();
   return (
     <>
-      <section className="px-6 py-[22px] print:hidden">
+      <section className="mt-[0.8rem] px-6 py-[22px] print:hidden border-b border-[#dce5e8]">
         <h2 className="mb-3 text-[1rem] font-bold tracking-[.07em] uppercase">
           Define boundary
         </h2>
@@ -47,7 +45,7 @@ export default function BoundaryControls({
             focus-within:border-[#477A59]
             focus-within:ring-2
             focus-within:ring-[#477A59]/20"
-           >
+          >
             <input
               id={fileInputId}
               className="sr-only"
@@ -59,12 +57,14 @@ export default function BoundaryControls({
                 event.target.value = "";
               }}
             />
-            <span className="shrink-0 font-semibold">{ fileName ? "Selected" : "Choose"}</span>
+            <span className="shrink-0 font-semibold">
+              {fileName ? "Selected" : "Choose"}
+            </span>
             <span className="truncate font-bold" title={fileName ?? undefined}>
               {fileName ?? "No file chosen"}
             </span>
           </label>
-          <Button variant="secondary" onClick={onClear} className="">
+          <Button variant="secondary" onClick={onClear} size="small" className="">
             Clear
           </Button>
         </div>
@@ -74,23 +74,12 @@ export default function BoundaryControls({
             ? `Boundary selected: ${fileName}`
             : hasGeometry ? "Boundary selected" : "No boundary selected"}
         </p> */}
-      </section>
-
-      <section className="border-b border-[#dce5e8] px-6  print:hidden">
-        {/* <h2 className="mb-3 text-[1rem] font-bold tracking-[.07em] uppercase">
-          Run analysis
-        </h2> */}
-        <InputField
-          placeholder="Report name (optional)"
-          maxLength={200}
-          value={name}
-          onChange={(event) => onNameChange(event.target.value)}
-        />
         <Button
+          className="mt-5 text-center"
           disabled={busy || (!hasGeometry && !fileName)}
           onClick={onAnalyze}
         >
-          {busy ? "Analyzing…" : "Analyze watershed"}
+          {busy ? "Analyzing…" : "Analyze Polygon"}
         </Button>
       </section>
     </>

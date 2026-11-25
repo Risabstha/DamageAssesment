@@ -3,6 +3,9 @@ import type { StationLayerState } from '../utils/hydrologyStationLayer'
 import Button from './Button'
 
 type Props = {
+  baseMap: 'osm' | 'satellite'
+  onBaseMapChange: (baseMap: 'osm' | 'satellite') => void
+  baseMapError: boolean
   state: RiverLayerState
   onChange: (enabled: boolean) => void
   onRetry: () => void
@@ -11,16 +14,27 @@ type Props = {
   onStationsRetry: () => void
 }
 
-export default function RiverLegend({ state, onChange, onRetry, stations, onStationsChange, onStationsRetry }: Props) {
+export default function Legend({ baseMap, onBaseMapChange, baseMapError, state, onChange, onRetry, stations, onStationsChange, onStationsRetry }: Props) {
   return (
     <div className="absolute top-3 right-3 z-[1000] flex max-w-[230px] flex-col gap-[7px] rounded-[6px] bg-white px-3 py-[10px] text-[.8rem] shadow-[0_1px_5px_#0004] print:hidden" aria-label="Map layers">
       <strong>Map layers</strong>
+      <fieldset className="flex flex-col gap-[7px] border-b border-[#dce5e8] pb-3">
+        <legend className="mb-2 text-[.72rem] font-semibold text-[#60777d]">Base map</legend>
+        <label className="flex cursor-pointer items-center gap-[7px]">
+          <input type="radio" name="base-map" checked={baseMap === 'osm'} onChange={() => onBaseMapChange('osm')} />
+          OpenStreetMap
+        </label>
+        <label className="flex cursor-pointer items-center gap-[7px]">
+          <input type="radio" name="base-map" checked={baseMap === 'satellite'} onChange={() => onBaseMapChange('satellite')} />
+          Satellite
+        </label>
+        {baseMapError && <span role="alert" className="text-[.72rem] text-[#a33432]">Some base map tiles could not be loaded. Check your connection or switch base maps.</span>}
+      </fieldset>
       <label className="flex cursor-pointer items-center gap-[7px]">
         <input type="checkbox" checked={state.enabled} onChange={event => onChange(event.target.checked)} />
         <span className="w-[18px] border-t-[3px] border-solid border-[#1384c4]" />
         River Stream
       </label>
-      <span className="text-[.72rem] text-[#60777d]">Automatic from zoom level 5</span>
       {state.message && <span role={state.error ? 'alert' : 'status'} className={`text-[.72rem] ${state.error ? 'text-[#a33432]' : 'text-[#60777d]'}`}>{state.message}</span>}
       {state.error && <Button variant="secondary" size="small" onClick={onRetry}>Retry</Button>}
       <label className="flex cursor-pointer items-center gap-[7px]">

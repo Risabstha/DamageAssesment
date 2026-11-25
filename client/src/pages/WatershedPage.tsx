@@ -6,14 +6,14 @@ import BoundaryControls from "../components/BoundaryControls";
 import ReportResults from "../components/ReportResults";
 import ReportLocationMap from "../components/ReportLocationMap";
 import SavedReports from "../components/SavedReports";
-import WatershedMap from "../components/WatershedMap";
-import type { WatershedMapHandle } from "../components/WatershedMap";
+import Map from "../components/Map";
+import type { MapHandle } from "../components/Map";
 import WatershedLayout from "../layouts/WatershedLayout";
 import type { Geometry, Report, Results } from "../types/watershed";
 import { extractGeometry } from "../utils/geometry";
 
 export default function WatershedPage() {
-  const mapRef = useRef<WatershedMapHandle>(null);
+  const mapRef = useRef<MapHandle>(null);
   const [geometry, setGeometry] = useState<Geometry | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [boundaryFileName, setBoundaryFileName] = useState<string | null>(null);
@@ -209,7 +209,6 @@ export default function WatershedPage() {
             name={name}
             onFile={(selected) => void selectFile(selected)}
             onClear={clearBoundary}
-            onNameChange={setName}
             onAnalyze={() => void analyze()}
           />
           {message && (
@@ -227,6 +226,7 @@ export default function WatershedPage() {
             />
           )}
           {results && geometry && <ReportLocationMap geometry={geometry} />}
+
           <SavedReports
             user={user}
             reports={reports}
@@ -236,10 +236,11 @@ export default function WatershedPage() {
             onRename={(report) => void renameReport(report)}
             onDelete={(id) => void deleteReport(id)}
           />
+
         </>
       }
     >
-      <WatershedMap
+      <Map
         ref={mapRef}
         onDraw={onDraw}
         overlay={results?.lulc_overlay ?? null}

@@ -1,0 +1,63 @@
+/* Scrollbar width */
+::-webkit-scrollbar {
+  width: 5.5px;
+  margin: 2px 0;
+  border: 2px solid red;
+}
+
+/* Remove arrows */
+::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+/* Thumb */
+::-webkit-scrollbar-thumb {
+  background: #103c47;
+  border-radius: null;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a6a7b;
+}
+
+.hydrology-station-popup .leaflet-popup-content-wrapper,
+.leaflet-tooltip.hydrology-station-tooltip {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.hydrology-station-popup .leaflet-popup-content {
+  margin: 0;
+}
+
+.hydrology-station-popup .leaflet-popup-tip-container,
+.hydrology-station-tooltip::before {
+  display: none;
+}
+
+.hydrology-station-popup a.leaflet-popup-close-button {
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 20px;
+  line-height: 24px;
+}
+
+.hydrology-station-popup a.leaflet-popup-close-button:hover,
+.hydrology-station-popup a.leaflet-popup-close-button:focus-visible {
+  background: #e2e8f0;
+  color: #0f172a;
+}
