@@ -5,8 +5,8 @@ import gdal from './gdal.js';
 
 type Bounds = [number, number, number, number];
 
-export const MIN_BUFFER_METERS = 50;
-export const MAX_BUFFER_METERS = 5000;
+export const MIN_BUFFER_METERS = 10;
+export const MAX_BUFFER_METERS = 1000;
 
 const wgs84 = () => gdal.SpatialReference.fromProj4('+proj=longlat +datum=WGS84 +no_defs');
 
